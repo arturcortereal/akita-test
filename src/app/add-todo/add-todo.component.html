@@ -1,14 +1,9 @@
 <div class="container">
 <div>Add Todo</div>
   <mat-card>
-    <form [formGroup]="form" (ngSubmit)="form.valid && addTodo()">
-      <mat-form-field appearance="outline">
-        <input formControlName="title" matInput placeholder="Title"/>
-      </mat-form-field>
-      <mat-form-field appearance="outline">
-        <input formControlName="description" matInput placeholder="Description"/>
-      </mat-form-field>
-      <button type="submit" mat-raised-button color="primary">
+    <form [formGroup]="todoForm" (ngSubmit)="addTodo(todoModel)">
+      <formly-form [model]="todoModel" [fields]="todoFields" [form]="todoForm"></formly-form>
+      <button [disabled]="todoForm.invalid" type="submit" mat-raised-button color="primary">
         Add  Todo
       </button>
     </form>

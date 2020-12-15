@@ -3,7 +3,8 @@ import { TodoStore } from './../state/store';
 import { ApiService } from './../api.service';
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { TodoQuery } from '../state/query';
+import { FormlyFieldConfig } from '@ngx-formly/core';
+import { Todo } from '../models/todo.model';
 
 @Component({
   selector: 'app-add-todo',
@@ -12,11 +13,19 @@ import { TodoQuery } from '../state/query';
 })
 export class AddTodoComponent implements OnInit {
   form!: FormGroup;
+  todoForm: FormGroup;
+  todoModel: Todo;
+  todoFields: Array<FormlyFieldConfig>;
+
   constructor(
     private apiService: ApiService,
     private todoStore: TodoStore,
     private router: Router
-  ) {}
+  ) {
+    this.todoForm = new FormGroup({});
+    this.todoModel = new Todo();
+    this.todoFields = this.todoModel.formFields();
+  }
 
   ngOnInit(): void {
     this.form = new FormGroup({
@@ -25,20 +34,21 @@ export class AddTodoComponent implements OnInit {
     });
   }
 
-  addTodo() {
-    console.log(this.form.value);
+  addTodo(todo: Todo) {
     this.todoStore.setLoading(true);
-    this.apiService.addTodo(this.form.controls.title.value, this.form.controls.description.value).subscribe( res => {
-      this.todoStore.update(state => {
-        return {
-          todos: [
-            ...state.todos,
-            res
-          ]
-        };
+    this.apiService
+      .addTodo(
+        todo.title,
+        todo.description
+      )
+      .subscribe((res) => {
+        this.todoStore.update((state) => {
+          return {
+            todos: [...state.todos, res],
+          };
+        });
+        this.todoStore.setLoading(false);
+        this.router.navigateByUrl('');
       });
-      this.todoStore.setLoading(false);
-      this.router.navigateByUrl('');
-    });
   }
 }
