@@ -23,7 +23,9 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.todoQuery.getLoading().subscribe((res => {this.loading= res}));
+    this.todoQuery.getLoading().subscribe((res) => {
+      this.loading = res;
+    });
     this.todoQuery.getTodos().subscribe((res) => (this.todos = res));
     this.todoQuery
       .getLoaded()
@@ -41,7 +43,7 @@ export class HomeComponent implements OnInit {
           this.todoStore.update((state) => {
             return {
               todos: res,
-              isLoaded: true
+              isLoaded: true,
             };
           });
           this.todoStore.setLoading(false);
@@ -58,20 +60,37 @@ export class HomeComponent implements OnInit {
   }
 
   markAsComplete(id: string): any {
-    this.apiService.updateTodo(id, { status: TodoStatus.DONE}).subscribe(res => {
-      this.todoStore.update(state => {
-        const todos = [...state.todos];
-        const index = todos.findIndex(t => t._id === id);
-        todos[index] = {
-          ...todos[index],
-          status: TodoStatus.DONE
-        };
+    this.apiService.updateTodo(id, { status: TodoStatus.DONE }).subscribe(
+      (res) => {
+        this.todoStore.update((state) => {
+          const todos = [...state.todos];
+          const index = todos.findIndex((t) => t._id === id);
+          todos[index] = {
+            ...todos[index],
+            status: TodoStatus.DONE,
+          };
 
-        return {
-          ...state,
-          todos
-        };
-      });
-    }, err => console.log(err));
+          return {
+            ...state,
+            todos,
+          };
+        });
+      },
+      (err) => console.log(err)
+    );
+  }
+
+  deleteTodo(id: string) {
+    this.apiService.deleteTodo(id).subscribe(
+      (res) => {
+        this.todoStore.update((state) => {
+          return {
+            ...state,
+            todos: state.todos.filter((t) => t._id !== id),
+          };
+        });
+      },
+      (error) => console.log(error)
+    );
   }
 }
